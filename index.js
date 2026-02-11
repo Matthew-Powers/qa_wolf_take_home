@@ -1,7 +1,10 @@
 // EDIT THIS FILE TO COMPLETE ASSIGNMENT QUESTION 1
 const { chromium } = require("playwright");
+const { title } = require("process");
 
 async function sortHackerNewsArticles() {
+  articleTimeCount = 0;
+  const articleTime = new Array;
   // launch browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
@@ -9,14 +12,16 @@ async function sortHackerNewsArticles() {
 
   // go to Hacker News
   await page.goto(('https://news.ycombinator.com/newest'));
-  await page.getByRole('link', { name: 'minutes ago' }).first().click();
-  await page.getByRole('link', { name: 'minutes ago' }).nth(1).click();
-  await page.getByRole('link', { name: 'More' }).click();
-  await page.getByRole('link', { name: '41 minutes ago' }).nth(2).click();
-  await page.getByRole('link', { name: 'More' }).click();
-  await page.getByRole('link', { name: 'More', exact: true }).click();
-  await page.locator('tr:nth-child(29) > .subtext > .subline > .age > a').click();
-  await page.locator('tr:nth-child(29) > .subtext > .subline > .age > a').click();
+  while(articleTimeCount < 100)
+  {
+
+    articleTime.push(await page.getByRole('link', { class: 'age' }).nth(articleTimeCount));
+    if(articleTimeCount % 29 == 0)
+    {
+      await page.getByRole('link', { name: 'More', exact: true }).click();
+    }
+    articleTimeCount++;
+  }
 }
 
 (async () => {
