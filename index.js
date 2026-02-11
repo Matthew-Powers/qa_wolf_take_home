@@ -14,11 +14,11 @@ async function sortHackerNewsArticles() {
   await page.goto(('https://news.ycombinator.com/newest'));
   while(articleTimeCount < 100)
   {
-
-    articleTime.push(await page.getByRole('link', { class: 'age' }).nth(articleTimeCount));
-    if(articleTimeCount % 29 == 0)
+    articleTime.push(await page.locator('.age').nth(articleTimeCount).getAttribute('title'));
+    if(articleTimeCount % 29 == 0 && articleTimeCount != 0)
     {
       await page.getByRole('link', { name: 'More', exact: true }).click();
+      console.log(articleTimeCount);
     }
     articleTimeCount++;
   }
