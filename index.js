@@ -30,9 +30,13 @@ async function sortHackerNewsArticles() {
           articleTimeCount++;
         }
       }
-      word = await page.locator('.age').nth(articleTimeCount).getAttribute('title');
-      wordSplit = word.split(" ");
-      articleTime.push(wordSplit[1]);
+      time = await page.locator('.age').nth(articleTimeCount).getAttribute('title');
+      timeSplit = time.split(" ");
+      articleTime.push(timeSplit[1]);
+      if(articleTime.length > 1)
+      {
+        assert(parseInt(articleTime[totalArticleTimeCount - 1]) >= parseInt(articleTime[totalArticleTimeCount]));
+      }
       if(articleTimeCount % totalNumberOfArticles == 0 && articleTimeCount != 0)
       {
         await page.getByRole('link', { name: 'More', exact: true }).click();
@@ -42,6 +46,7 @@ async function sortHackerNewsArticles() {
     }
     numberOfPages++;
   }
+  await browser.close();
 }
 
 (async () => {
