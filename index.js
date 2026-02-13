@@ -4,48 +4,23 @@ const { chromium } = require("playwright");
 const { title } = require("process");
 
 async function sortHackerNewsArticles() {
-  const articleTime = new Array;
-  const totalNumberOfArticles = 29;
-  numberOfPages = 0;
-  const totalArticleCount = 100;
-  const totalNumberOfPages = 4;
-  totalArticleTimeCount = 0;
+  const totalNumberOfArticlesPerPage = 29; //30 articles per page, zero based
+  const firstOneHundredArticles = 100;
+  const numberOfPagesToGoThrough = 4;
+  let arrayOfArticlesPublishedTimes = [];
+  let pageCount = 0;
+  let totalNumberOfArticlesIncrementedThrough = 0;
 
   // launch browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  async function GetArticleTitle(counter)
-  {
-    return await page.locator('.titleline').nth(counter).innerText();
-  }
-
-  //Check to see that the same article time is not being copied by comparing headlines
-  async function CheckIfArticleTitlesAreTheSame(prevArticleTitle, curArticleTitle, counter)
-  {
-    if(totalArticleTimeCount > totalNumberOfArticles - 1)
-      {
-        if(prevArticleTitle == curArticleTitle)
-        {
-          counter++;
-        }
-      }
-  }
-
   async function GetArticlePublishedTimeInSeconds(counter) 
   {
     time = await page.locator('.age').nth(counter).getAttribute('title');
     timeSplit = time.split(" ");
     return timeSplit[1];
-  }
-
-  async function AssertArticlesAreInOrder(publishedTimeArray, counter)
-  {
-    if(publishedTimeArray.length > 1)
-    {
-      assert(parseInt(publishedTimeArray[counter - 1]) >= parseInt(publishedTimeArray[counter]));
-    }
   }
 
   async function GoToNextPage(articlesCounted, articlesPerPage)
@@ -56,30 +31,25 @@ async function sortHackerNewsArticles() {
     }
   }
 
-  async function GetArticleTimesAndAssertTheyAreInOrder()
-  {
-    while(numberOfPages < totalNumberOfPages)
-    {
-      articleTimeCount = 0
-      while(articleTimeCount <= totalNumberOfArticles && totalArticleTimeCount < totalArticleCount)
-      {
-        currentArticleTitle = await GetArticleTitle(articleTimeCount);
-        previousArticleTitle = await GetArticleTitle((articleTimeCount + 1) % totalNumberOfArticles + 1);
-        await CheckIfArticleTitlesAreTheSame(previousArticleTitle, currentArticleTitle, articleTimeCount);
-        articleTime.push(await GetArticlePublishedTimeInSeconds(articleTimeCount));
-        await AssertArticlesAreInOrder(articleTime, totalArticleTimeCount);
-        await GoToNextPage(articleTimeCount, totalNumberOfArticles);
-        await articleTimeCount++;
-        await totalArticleTimeCount++;
-      }
-      numberOfPages++;
-    }
-  }
-
   // go to Hacker News
   await page.goto(('https://news.ycombinator.com/newest'));
-  await GetArticleTimesAndAssertTheyAreInOrder();
+  while(pageCount < numberOfPagesToGoThrough)
+  {
+    let currentPageArticleCount = 0;
+    while(currentPageArticleCount <= totalNumberOfArticlesPerPage && totalNumberOfArticlesIncrementedThrough < firstOneHundredArticles)
+    {
+      arrayOfArticlesPublishedTimes.push(await GetArticlePublishedTimeInSeconds(currentPageArticleCount));
+      await GoToNextPage(currentPageArticleCount, totalNumberOfArticlesPerPage);
+      currentPageArticleCount++;
+      totalNumberOfArticlesIncrementedThrough++;
+    }
+    pageCount++;
+  }
   await browser.close();
+  for(let i = 0; i < arrayOfArticlesPublishedTimes.length - 1; i++)
+  {
+    assert(parseInt(arrayOfArticlesPublishedTimes[i]) >= parseInt(arrayOfArticlesPublishedTimes[i+1]), "Articles are not published from newest to oldest");
+  }
 }
 
 (async () => {
