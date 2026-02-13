@@ -7,14 +7,19 @@ async function sortHackerNewsArticles() {
   const articleTime = new Array;
   const totalNumberOfArticles = 29;
   numberOfPages = 0;
+  const totalArticleCount = 100;
   const totalNumberOfPages = 4;
   totalArticleTimeCount = 0;
-  const totalArticleCount = 100;
-  areInOrder = true;
+
   // launch browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
   const page = await context.newPage();
+
+  async function GetArticleTitle(counter)
+  {
+    return await page.locator('.titleline').nth(counter).innerText();
+  }
 
   // go to Hacker News
   await page.goto(('https://news.ycombinator.com/newest'));
@@ -23,9 +28,11 @@ async function sortHackerNewsArticles() {
     articleTimeCount = 0
     while(articleTimeCount <= totalNumberOfArticles && totalArticleTimeCount < totalArticleCount)
     {
-      if(numberOfPages != 0)
+      currentArticleTitle = await GetArticleTitle(articleTimeCount);
+      if(totalArticleTimeCount > totalNumberOfArticles - 1)
       {
-        if(await page.locator('.age').nth(articleTimeCount).getAttribute('title') == articleTime[articleTimeCount - 1])
+        //Check to see that the same article time is not being copied by comparing headlines
+        if(previousArticleTitle == currentArticleTitle)
         {
           articleTimeCount++;
         }
@@ -41,6 +48,7 @@ async function sortHackerNewsArticles() {
       {
         await page.getByRole('link', { name: 'More', exact: true }).click();
       }
+      previousArticleTitle = await GetArticleTitle(articleTimeCount);
       articleTimeCount++;
       totalArticleTimeCount++;
     }
@@ -52,3 +60,5 @@ async function sortHackerNewsArticles() {
 (async () => {
   await sortHackerNewsArticles();
 })();
+
+
