@@ -23,12 +23,9 @@ async function sortHackerNewsArticles() {
     return timeSplit[1];
   }
 
-  async function GoToNextPage(articlesCounted, articlesPerPage)
+  async function GoToNextPage()
   {
-    if(articlesCounted >= articlesPerPage)
-    {
-      await page.getByRole('link', { name: 'More', exact: true }).click();
-    }
+    await page.getByRole('link', { name: 'More', exact: true }).click();
   }
 
   // go to Hacker News
@@ -39,10 +36,10 @@ async function sortHackerNewsArticles() {
     while(currentPageArticleCount <= totalNumberOfArticlesPerPage && totalNumberOfArticlesIncrementedThrough < firstOneHundredArticles)
     {
       arrayOfArticlesPublishedTimes.push(await GetArticlePublishedTimeInSeconds(currentPageArticleCount));
-      await GoToNextPage(currentPageArticleCount, totalNumberOfArticlesPerPage);
       currentPageArticleCount++;
       totalNumberOfArticlesIncrementedThrough++;
     }
+    await GoToNextPage();
     pageCount++;
   }
   await browser.close();
