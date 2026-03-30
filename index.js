@@ -31,6 +31,7 @@ async function sortHackerNewsArticles() {
 
   // go to Hacker News
   await page.goto(('https://news.ycombinator.com/newest'));
+  // Potential bug: If an article is published while the code is running, may grab the time of one of the articles twice
   while(pageCount < numberOfPagesToGoThrough)
   {
     let currentPageArticleCount = 0;
