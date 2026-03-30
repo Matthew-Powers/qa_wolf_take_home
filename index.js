@@ -1,5 +1,5 @@
 // EDIT THIS FILE TO COMPLETE ASSIGNMENT QUESTION 1
-const { assert, count } = require("console");
+const { assert, count, Console } = require("console");
 const { chromium } = require("playwright");
 const { title } = require("process");
 
@@ -10,6 +10,7 @@ async function sortHackerNewsArticles() {
   let arrayOfArticlesPublishedTimes = [];
   let pageCount = 0;
   let totalNumberOfArticlesIncrementedThrough = 0;
+  let areNotInOrder = false;
 
   // launch browser
   const browser = await chromium.launch({ headless: false });
@@ -45,7 +46,18 @@ async function sortHackerNewsArticles() {
   await browser.close();
   for(let i = 0; i < arrayOfArticlesPublishedTimes.length - 1; i++)
   {
-    assert(parseInt(arrayOfArticlesPublishedTimes[i]) >= parseInt(arrayOfArticlesPublishedTimes[i+1]), "Articles are not published from newest to oldest");
+    if(parseInt(arrayOfArticlesPublishedTimes[i]) < parseInt(arrayOfArticlesPublishedTimes[i+1]))
+    {
+      areNotInOrder = true;
+    }
+  }
+  if(areNotInOrder)
+  {
+    console.log("The articles are not published from newest to oldest")
+  }
+  else
+  {
+    console.log("The articles are published from newest to oldest")
   }
 }
 
