@@ -4,7 +4,7 @@ const { chromium } = require("playwright");
 const { title } = require("process");
 
 async function sortHackerNewsArticles() {
-  const totalNumberOfArticlesPerPage = 29; //30 articles per page, zero based
+  const totalNumberOfArticlesPerPage = 30; 
   const firstOneHundredArticles = 100;
   const numberOfPagesToGoThrough = 4;
   let arrayOfArticlesPublishedTimes = [];
@@ -35,7 +35,7 @@ async function sortHackerNewsArticles() {
   while(pageCount < numberOfPagesToGoThrough)
   {
     let currentPageArticleCount = 0;
-    while(currentPageArticleCount <= totalNumberOfArticlesPerPage && totalNumberOfArticlesIncrementedThrough < firstOneHundredArticles)
+    while(currentPageArticleCount < totalNumberOfArticlesPerPage && totalNumberOfArticlesIncrementedThrough < firstOneHundredArticles)
     {
       arrayOfArticlesPublishedTimes.push(await GetArticlePublishedTimeInSeconds(currentPageArticleCount));
       currentPageArticleCount++;
@@ -54,12 +54,13 @@ async function sortHackerNewsArticles() {
   }
   if(areNotInOrder)
   {
-    console.log("The articles are not published from newest to oldest")
+    console.log("The articles are not published from newest to oldest");
   }
   else
   {
-    console.log("The articles are published from newest to oldest")
+    console.log("The articles are published from newest to oldest");
   }
+  console.log(`The total number of articles is ${arrayOfArticlesPublishedTimes.length}`);
 }
 
 (async () => {
